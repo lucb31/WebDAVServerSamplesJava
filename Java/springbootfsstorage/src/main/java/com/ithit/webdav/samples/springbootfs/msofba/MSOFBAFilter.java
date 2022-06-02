@@ -25,7 +25,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Component
-@ConditionalOnProperty("azure.activedirectory.tenant-id")
+//@ConditionalOnProperty("azure.activedirectory.tenant-id")
 public class MSOFBAFilter extends GenericFilterBean {
 
     final RequestCache cache = new HttpSessionRequestCache();
@@ -49,9 +49,16 @@ public class MSOFBAFilter extends GenericFilterBean {
     private boolean applyMSOFBAResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (!isAuthenticated() && isOFBAAccepted(request)) {
             // We need to save original request so the office after authentication will redirect to it.
+            String debugRequestUri = request.getRequestURI();
+            String debugRequestMethod = request.getMethod();
             saveOriginalRequest(request, response);
-            response.setHeader("X-FORMS_BASED_AUTH_REQUIRED", String.format("%s://%s:%s/oauth2/authorization/azure", request.getScheme(), request.getServerName(), request.getLocalPort()));
-            response.setHeader("X-FORMS_BASED_AUTH_RETURN_URL", String.format("%s://%s:%s%s", request.getScheme(), request.getServerName(), request.getLocalPort(), properties.getRootContext()));
+            String debugOriginalAuthUrl = String.format("%s://%s:%s/oauth2/authorization/azure", request.getScheme(), request.getServerName(), request.getLocalPort());
+            String debugOriginalReturnUrl = String.format("%s://%s:%s%s", request.getScheme(), request.getServerName(), request.getLocalPort(), properties.getRootContext());
+            // Todo Danger: Static ngrok ip
+            String authUrl = "https://2f64-91-42-44-142.eu.ngrok.io/oauth2/authorization/gateway";
+            String returnUrl = "https://2f64-91-42-44-142.eu.ngrok.io/DAV/";
+            response.setHeader("X-FORMS_BASED_AUTH_REQUIRED", authUrl);
+            response.setHeader("X-FORMS_BASED_AUTH_RETURN_URL", returnUrl);
             response.setHeader("FORMS_BASED_AUTH_DIALOG_SIZE", "800x600");
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return true;

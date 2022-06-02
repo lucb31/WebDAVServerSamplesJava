@@ -20,7 +20,6 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
-@ConditionalOnProperty("azure.activedirectory.tenant-id")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     MSOFBAFilter msofbaFilter;
